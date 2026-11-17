@@ -1,0 +1,75 @@
+# Copy to config.yaml. Every key is optional; defaults live in clipper/config.py.
+data_dir: data
+
+twitch:
+  game_name: Grand Theft Auto VI
+  channels: []              # always watch these (only clipped while live in the GTA VI category)
+  auto_discover: true       # also watch the biggest live GTA VI streams
+  discover_top_n: 5
+  min_viewers: 300
+  languages: [en]
+  exclude_channels: []
+
+capture:
+  quality: 720p60,720p,936p60,1080p60,best   # 720p60 ~ 3.5 Mbps per streamer
+  buffer_seconds: 240
+
+detector:
+  z_enter: 3.0              # raise to clip less often, lower to clip more
+  min_ratio: 2.0            # chat must be at least 2x its normal hype rate
+  min_unique_chatters: 5
+  cooldown_s: 40            # min gap between clips from the same channel
+  reaction_lag_s: 4.0       # chat reacts this long after the moment
+
+moment:
+  target_pre_s: 14          # seconds of setup before the payoff
+  max_post_s: 14
+  min_len_s: 10
+  max_len_s: 50
+  use_llm: true             # Claude quality gate + cut + title (needs ANTHROPIC_API_KEY)
+  llm_model: claude-opus-5-5
+  llm_effort: medium
+  min_quality_score: 5      # clips Claude scores lower are rendered but not posted
+
+transcribe:
+  model: small.en           # base.en is faster on CPU; medium.en / large-v3 if you have a GPU
+  device: auto
+  workers: 1
+
+edit:
+  layout: auto              # auto = split if the streamer has a facecam set below, else blur
+  speed: 1.07
+  punch_zoom: 1.22
+  shake_px: 14
+  impact_sfx: true
+  impact_echo: true
+  voice_enhance: true
+  loudness_lufs: -14
+  caption_font: Inter Black
+  caption_highlight: FFE600
+  words_per_caption: 3
+  censor_words: []
+  encoder: libx264          # h264_nvenc on NVIDIA, h264_videotoolbox on Mac, h264_qsv on Intel
+  preset: veryfast
+  render_workers: 2         # parallel renders; ~1 per 4 CPU cores with libx264
+  output_dir: data/clips
+
+# Per-streamer layout. facecam = [x, y, width, height] as fractions of the frame.
+streamers:
+  # examplestreamer:
+  #   facecam: [0.75, 0.70, 0.25, 0.30]
+  #   display_name: ExampleStreamer
+
+publish:
+  dry_run: true             # flip to false (or run with --post) once you've reviewed some clips
+  default_hashtags: ["#GTA6", "#GTAVI", "#gaming", "#twitch"]
+  youtube:
+    enabled: true
+    privacy: public
+  tiktok:
+    enabled: true
+    privacy_level: PUBLIC_TO_EVERYONE   # unaudited TikTok apps are forced to SELF_ONLY
+    max_posts_per_day: 15
+  instagram:
+    enabled: true
+    api_version: v24.0
